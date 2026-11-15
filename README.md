@@ -28,29 +28,29 @@ TAD（Traced Allocation Dynamics）は、入力された履歴が時間ととも
 
 ### はじめてTADに触れる方
 
-1. [00｜TADとは何か](スライド/00_TAD_introduction_math.pdf) — 基本となる考え方
-2. [10｜在庫鮮度から始まったTAD](スライド/10_TAD_inventory_freshness.pdf) — 実務からの出発点
-3. [50｜TADの応用地図](スライド/50_TAD_application_map.pdf) — どんな分野につながるか
+1. [00｜TADとは何か](00_TAD_introduction.pdf) — 基本となる考え方
+2. [10｜在庫鮮度から始まったTAD](10_TAD_inventory_freshness.pdf) — 実務からの出発点
+3. [50｜TADの応用地図](50_TAD_application_map.pdf) — どんな分野につながるか
 
 その後は、一覧から興味のある分野を選んでください。
 
 ### 数理・データ分析の研究者、技術者
 
-1. [00｜TADとは何か](スライド/00_TAD_introduction_math.pdf)
-2. [20｜履歴を状態として記述する](スライド/20_TAD_basic_structure.pdf)
-3. [21｜履歴構成を測る](スライド/21_TAD_history_metrics.pdf)
-4. [60｜拡張TADの概要](スライド/60_TAD_extended_framework.pdf)
+1. [00｜TADとは何か](00_TAD_introduction.pdf)
+2. [20｜履歴を状態として記述する](20_TAD_basic_structure.pdf)
+3. [21｜履歴構成を測る](21_TAD_history_metrics.pdf)
+4. [60｜拡張TADの概要](60_TAD_extended_framework.pdf)
 5. [70〜75｜各分野への接続](#分野への接続) のうち、関心のある資料
-6. [90｜TADの今後の展望](スライド/90_TAD_future_directions.pdf)
+6. [90｜TADの今後の展望](90_TAD_future_directions.pdf)
 
 ### 企業のデータ活用・業務改善に関わる方
 
-1. [00｜TADとは何か](スライド/00_TAD_introduction_math.pdf)
-2. [10｜在庫鮮度から始まったTAD](スライド/10_TAD_inventory_freshness.pdf)
-3. [30｜TAD-DB](スライド/30_TAD_DB_introduction.pdf) — 履歴を分析できるデータにする
-4. [40｜履歴地形を読む](スライド/40_TAD_history_landscape.pdf) — 履歴分布を可視化する
-5. [50｜TADの応用地図](スライド/50_TAD_application_map.pdf)
-6. [73｜マーケティングと資本動学](スライド/73_TAD_advertising_and_capital.pdf) など、関心のある応用例
+1. [00｜TADとは何か](00_TAD_introduction.pdf)
+2. [10｜在庫鮮度から始まったTAD](10_TAD_inventory_freshness.pdf)
+3. [30｜TAD-DB](30_TAD_DB_introduction.pdf) — 履歴を分析できるデータにする
+4. [40｜履歴地形を読む](40_TAD_history_landscape.pdf) — 履歴分布を可視化する
+5. [50｜TADの応用地図](50_TAD_application_map.pdf)
+6. [73｜マーケティングと資本動学](73_TAD_advertising_and_capital.pdf) など、関心のある応用例
 
 ## 資料一覧
 
@@ -58,31 +58,31 @@ TAD（Traced Allocation Dynamics）は、入力された履歴が時間ととも
 
 | ID | 資料 | 主な内容 |
 | --- | --- | --- |
-| 00 | [TADとは何か](スライド/00_TAD_introduction_math.pdf) | 総量の背後にある履歴を見る |
-| 10 | [在庫鮮度から始まったTAD](スライド/10_TAD_inventory_freshness.pdf) | 同じ在庫量でも中身は違う |
-| 20 | [履歴を状態として記述する](スライド/20_TAD_basic_structure.pdf) | 入力・残存・出力と履歴状態 |
-| 21 | [履歴構成を測る](スライド/21_TAD_history_metrics.pdf) | 平均履歴年齢と履歴エントロピー |
-| 30 | [TAD-DB](スライド/30_TAD_DB_introduction.pdf) | 履歴を分析できるデータにする |
-| 40 | [履歴地形を読む](スライド/40_TAD_history_landscape.pdf) | ヒートマップで見る履歴分布 |
-| 50 | [TADの応用地図](スライド/50_TAD_application_map.pdf) | 異なる分野に共通する履歴構造 |
-| 60 | [拡張TADの概要](スライド/60_TAD_extended_framework.pdf) | 自然減衰、出力換算、非対角入力 |
+| 00 | [TADとは何か](00_TAD_introduction.pdf) | 総量の背後にある履歴を見る |
+| 10 | [在庫鮮度から始まったTAD](10_TAD_inventory_freshness.pdf) | 同じ在庫量でも中身は違う |
+| 20 | [履歴を状態として記述する](20_TAD_basic_structure.pdf) | 入力・残存・出力と履歴状態 |
+| 21 | [履歴構成を測る](21_TAD_history_metrics.pdf) | 平均履歴年齢と履歴エントロピー |
+| 30 | [TAD-DB](30_TAD_DB_introduction.pdf) | 履歴を分析できるデータにする |
+| 40 | [履歴地形を読む](40_TAD_history_landscape.pdf) | ヒートマップで見る履歴分布 |
+| 50 | [TADの応用地図](50_TAD_application_map.pdf) | 異なる分野に共通する履歴構造 |
+| 60 | [拡張TADの概要](60_TAD_extended_framework.pdf) | 自然減衰、出力換算、非対角入力 |
 
 ### 分野への接続
 
 | ID | 資料 | 主な内容 |
 | --- | --- | --- |
-| 70 | [物理・生物物理への接続](スライド/70_TAD_physics_and_turnover.pdf) | 線形応答、タンパク質ターンオーバー |
-| 71 | [人口・感染症との接続](スライド/71_TAD_population_and_sir.pdf) | 人口の年齢構造、SIR・感染コホート |
-| 72 | [記憶とKovacs効果](スライド/72_TAD_memory_and_kovacs.pdf) | 復習計画最適化、多時間尺度の応答 |
-| 73 | [マーケティングと資本動学](スライド/73_TAD_advertising_and_capital.pdf) | 広告残効、Solow型の資本蓄積 |
-| 74 | [LLMと待ち行列](スライド/74_TAD_attention_and_queues.pdf) | Attentionへの応用構想、待ち行列 |
-| 75 | [生物進化と総量成長](スライド/75_TAD_evolution_and_growth.pdf) | 系統の生成・消失、ロジスティック成長 |
+| 70 | [物理・生物物理への接続](70_TAD_physics_and_turnover.pdf) | 線形応答、タンパク質ターンオーバー |
+| 71 | [人口・感染症との接続](71_TAD_population_and_sir.pdf) | 人口の年齢構造、SIR・感染コホート |
+| 72 | [記憶とKovacs効果](72_TAD_memory_and_kovacs.pdf) | 復習計画最適化、多時間尺度の応答 |
+| 73 | [マーケティングと資本動学](73_TAD_advertising_and_capital.pdf) | 広告残効、Solow型の資本蓄積 |
+| 74 | [LLMと待ち行列](74_TAD_attention_and_queues.pdf) | Attentionへの応用構想、待ち行列 |
+| 75 | [生物進化と総量成長](75_TAD_evolution_and_growth.pdf) | 系統の生成・消失、ロジスティック成長 |
 
 ### 今後の展望
 
 | ID | 資料 | 主な内容 |
 | --- | --- | --- |
-| 90 | [TADの今後の展望](スライド/90_TAD_future_directions.pdf) | 理論・実装・分野横断の展開 |
+| 90 | [TADの今後の展望](90_TAD_future_directions.pdf) | 理論・実装・分野横断の展開 |
 
 資料番号は読み順を強制する連番ではなく、各資料を区別するためのIDです。
 
@@ -98,4 +98,3 @@ TAD（Traced Allocation Dynamics）は、入力された履歴が時間ととも
 
 関連プレプリント：<https://doi.org/10.51094/jxiv.1593>  
 公開ページの版と参照原稿ver10は、内容や章立てが異なる場合があります。
-
