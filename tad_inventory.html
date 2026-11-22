@@ -1,0 +1,1878 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TAD 在庫鮮度シミュレーター</title>
+<style>
+:root {
+  color-scheme: light;
+  font-family: "Yu Gothic UI", "Meiryo", sans-serif;
+  color: #1f3440;
+  background: #f3f7fa;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; line-height: 1.55; }
+
+header {
+  background: #123a50;
+  color: white;
+  padding: 22px 24px;
+}
+
+header h1 { margin: 0; font-size: 23px; }
+header p { margin: 5px 0 0; color: #d2e5ef; font-size: 14px; }
+
+main {
+  max-width: 1260px;
+  margin: auto;
+  padding: 18px;
+}
+
+section {
+  background: white;
+  border: 1px solid #d9e5ea;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+h2 { font-size: 18px; margin: 0 0 12px; }
+h3 { font-size: 15px; margin: 0 0 8px; }
+p { margin: 8px 0; }
+
+.muted { color: #526b78; font-size: 13px; }
+.small { font-size: 12px; color: #607681; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+input[type=number],
+input[type=date],
+select {
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 9px;
+  border: 1px solid #a9bec9;
+  border-radius: 6px;
+  background: white;
+  color: #173443;
+  font: inherit;
+}
+
+input:disabled,
+select:disabled {
+  background: #e9eff2;
+  color: #607681;
+}
+
+.week {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 6px 0 13px;
+}
+
+.week label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.week input { width: 16px; height: 16px; }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+button,
+.file-label {
+  cursor: pointer;
+  border: 1px solid #9eb6c2;
+  background: #fff;
+  color: #173b50;
+  padding: 9px 13px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+button:hover,
+.file-label:hover { background: #edf5f8; }
+
+button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+button.primary {
+  background: #00739e;
+  border-color: #00739e;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+button.primary:hover { background: #005b7e; }
+.file-label input { max-width: 200px; font-size: 12px; }
+
+.status {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #183b4c;
+}
+
+.message {
+  min-height: 24px;
+  color: #006e5b;
+  font-size: 13px;
+}
+
+.error { color: #a72727; }
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.metric {
+  border-left: 3px solid #49a1bf;
+  padding: 2px 10px;
+}
+
+.metric small {
+  display: block;
+  font-size: 12px;
+  color: #607681;
+}
+
+.metric strong { font-size: 19px; }
+
+.alert {
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+.ok {
+  background: #edf7f3;
+  color: #1b6b55;
+}
+
+.warn {
+  background: #fff1df;
+  color: #964500;
+  font-weight: bold;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.chart {
+  border: 1px solid #e2ebef;
+  border-radius: 7px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.chart.wide { grid-column: 1 / -1; }
+
+.slider-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  color: #536b79;
+  font-size: 13px;
+}
+
+.slider-row label {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+th, td {
+  border-bottom: 1px solid #e1eaee;
+  padding: 7px 9px;
+  text-align: right;
+}
+
+th {
+  background: #f3f7f9;
+  color: #3e5b6a;
+  position: sticky;
+  top: 0;
+}
+
+th:first-child,
+td:first-child { text-align: left; }
+
+details summary {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+details li { margin: 5px 0; }
+
+@media (max-width: 650px) {
+  main { padding: 10px; }
+  section { padding: 13px; }
+  .chart-grid { grid-template-columns: 1fr; }
+  header h1 { font-size: 20px; }
+  .file-label input { max-width: 145px; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>TAD 在庫鮮度シミュレーター</h1>
+  <p>日ごとに入出庫を進め、履歴分布と在庫鮮度を確認します。</p>
+</header>
+
+<main>
+
+<section>
+  <h2>１．シミュレーション全体の設定</h2>
+  <p class="muted">
+    最初の１日を実行すると、この４項目は固定されます。
+    変更する場合は初期化してください。
+  </p>
+
+  <div class="grid">
+    <label class="field">
+      開始日
+      <input id="start" type="date">
+    </label>
+
+    <label class="field">
+      初期在庫（個）
+      <input id="initial" type="number" min="0" step="1" value="400">
+    </label>
+
+    <label class="field">
+      引当方式
+      <select id="mode">
+        <option>FIFO</option>
+        <option>LIFO</option>
+        <option>均等</option>
+      </select>
+    </label>
+
+    <label class="field">
+      出庫鮮度制限（日）
+      <input id="limit" type="number" min="0" step="1" value="30">
+    </label>
+  </div>
+</section>
+
+<section>
+  <h2>２．その日の設定</h2>
+  <p class="muted">
+    前回の入力値が残ります。
+    変更は、これから実行する日以降に適用されます。
+  </p>
+
+  <span class="field">入庫する曜日</span>
+
+  <div class="week">
+    <label><input name="wd" type="checkbox" value="1" checked>月</label>
+    <label><input name="wd" type="checkbox" value="2">火</label>
+    <label><input name="wd" type="checkbox" value="3">水</label>
+    <label><input name="wd" type="checkbox" value="4" checked>木</label>
+    <label><input name="wd" type="checkbox" value="5">金</label>
+    <label><input name="wd" type="checkbox" value="6">土</label>
+    <label><input name="wd" type="checkbox" value="0">日</label>
+  </div>
+
+  <div class="grid">
+    <label class="field">
+      １回の入庫量（個）
+      <input id="amount" type="number" min="0" step="1" value="350">
+    </label>
+
+    <label class="field">
+      出庫発生確率（％）
+      <input id="prob" type="number" min="0" max="100"
+             step="any" value="95">
+    </label>
+
+    <label class="field">
+      出庫量の最小（個）
+      <input id="min" type="number" min="0" step="1" value="90">
+    </label>
+
+    <label class="field">
+      出庫量の最大（個）
+      <input id="max" type="number" min="0" step="1" value="120">
+    </label>
+  </div>
+
+  <p id="replayNote" class="muted"></p>
+
+  <div class="actions">
+    <button id="step" type="button" class="primary">１日進める</button>
+    <button id="reset" type="button">初期化</button>
+  </div>
+
+  <div id="status" class="status"></div>
+  <div id="message" class="message" role="status" aria-live="polite"></div>
+</section>
+
+<section>
+  <h2>３．現在の結果</h2>
+
+  <div class="summary">
+    <div class="metric">
+      <small>処理した日</small>
+      <strong id="today">—</strong>
+    </div>
+
+    <div class="metric">
+      <small>出庫後の総在庫</small>
+      <strong id="stock">—</strong>
+    </div>
+
+    <div class="metric">
+      <small>出庫後の出庫可能在庫</small>
+      <strong id="eligible">—</strong>
+    </div>
+
+    <div class="metric">
+      <small>入庫平均年齢</small>
+      <strong id="average">—</strong>
+    </div>
+
+    <div class="metric">
+      <small>履歴エントロピー</small>
+      <strong id="entropy">—</strong>
+    </div>
+  </div>
+
+  <div id="alert" class="alert ok" role="status"></div>
+
+  <h3>現在のロット別在庫</h3>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>入庫日</th>
+          <th>滞留日数</th>
+          <th>残量（個）</th>
+          <th>状態</th>
+        </tr>
+      </thead>
+      <tbody id="lots"></tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>４．グラフ</h2>
+
+  <div class="chart-grid">
+    <div class="chart wide">
+      <h3>履歴分布 p(t,T)</h3>
+
+      <div class="slider-row">
+        <label>
+          回転
+          <input id="spin" type="range" min="-170" max="170" value="40">
+        </label>
+
+        <label>
+          視点の高さ
+          <input id="tilt" type="range" min="5" max="70" value="25">
+        </label>
+      </div>
+
+      <canvas id="surface"
+              role="img"
+              aria-label="観測日、入庫日、在庫構成比の３次元グラフ"></canvas>
+      <div id="plotNote" class="small"></div>
+    </div>
+
+    <div class="chart">
+      <h3>入庫平均年齢</h3>
+      <canvas id="inChart" role="img"
+              aria-label="入庫平均年齢の推移"></canvas>
+    </div>
+
+    <div class="chart">
+      <h3>出庫平均年齢</h3>
+      <canvas id="outChart" role="img"
+              aria-label="出庫平均年齢の推移"></canvas>
+    </div>
+
+    <div class="chart">
+      <h3>履歴エントロピー</h3>
+      <canvas id="entropyChart" role="img"
+              aria-label="履歴エントロピーの推移"></canvas>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>５．日別の記録</h2>
+  <p class="muted">
+    新しい日付を上に表示します。
+    平均年齢は日単位、エントロピーは自然対数です。
+  </p>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>入庫</th>
+          <th>出庫需要</th>
+          <th>実出庫</th>
+          <th>未出庫</th>
+          <th>在庫</th>
+          <th>入庫平均</th>
+          <th>出庫平均</th>
+          <th>Ｓ</th>
+          <th>新規警告</th>
+        </tr>
+      </thead>
+      <tbody id="log"></tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>６．保存・比較</h2>
+
+  <div class="actions">
+    <button id="backup" type="button">状態をJSON保存</button>
+
+    <label class="file-label">
+      JSONを読込
+      <input id="restore" type="file" accept=".json,application/json">
+    </label>
+
+    <button id="csv" type="button">日別結果をCSV保存</button>
+    <button id="reuse" type="button">同じ入出庫で方式を比較</button>
+    <button id="release" type="button">比較を終了</button>
+  </div>
+
+  <p id="saveStatus" class="small"></p>
+  <p class="muted">
+    ブラウザー内の自動保存は消える場合があります。
+    続きから確実に再開したいときはJSON保存を利用してください。
+  </p>
+</section>
+
+<section>
+  <details open>
+    <summary>使い方と計算方法</summary>
+
+    <ol>
+      <li>
+        開始日、初期在庫、引当方式、出庫鮮度制限を設定します。
+        初期在庫は開始日に入庫した１ロット、滞留０日として扱います。
+      </li>
+
+      <li>
+        入庫曜日・入庫量・出庫確率・出庫量の範囲を設定し、
+        「１日進める」を押します。設定値は必要に応じて毎日変更できます。
+      </li>
+
+      <li>
+        当日は入庫後に出庫します。出庫需要は指定確率で発生し、
+        数量を最小〜最大の整数から等確率で選びます。
+      </li>
+
+      <li>
+        鮮度制限以下のロットだけを対象に、FIFO・LIFO・
+        ロットごとの均等引当を行います。
+        均等で割り切れない端数は古いロットから１個ずつ配ります。
+      </li>
+
+      <li>
+        出庫可能量が不足した分は未出庫として記録し、
+        翌日には繰り越しません。鮮度制限を超えたロットは出庫せず、
+        廃棄せずにアラートとして表示します。
+      </li>
+
+      <li>
+        入庫平均年齢・p・エントロピーは出庫後の残存在庫から計算します。
+        出庫平均年齢は当日の実出庫で重み付けします。
+        在庫や出庫が０の場合、その平均などは未定義として表示します。
+      </li>
+
+      <li>
+        「同じ入出庫で方式を比較」を押すと、
+        入力した入庫と生成された出庫需要を保持して初日から再実行できます。
+        新しい方式を選んで１日ずつ進めると、
+        各推移グラフに比較元が灰色で表示されます。
+      </li>
+
+      <li>
+        JSONには設定・結果・履歴分布を保存します。
+        CSVには日別の入力条件と結果を保存します。
+        JSONは「JSONを読込」から再開できます。
+      </li>
+    </ol>
+
+    <p class="muted">
+      ３次元グラフは表示を回転できます。表示の高速化のため、
+      日数が180日を超えた場合は日付を間引いて描画します。
+      保存データと他のグラフは全日分です。
+    </p>
+
+    <p class="muted">
+      本ページは外部通信を行いません。
+      ブラウザーの自動保存は端末・ブラウザーごとで、
+      データ消去時に失われるため、必要な結果はJSONでも保存してください。
+    </p>
+  </details>
+</section>
+
+</main>
+
+<script>
+function TADCore() {
+  "use strict";
+
+  const clone = x => JSON.parse(JSON.stringify(x));
+
+  const fresh = () => ({
+    fixed: null,
+    lots: [],
+    history: [],
+    replay: null
+  });
+
+  function advance(state, fixed, inbound, demand, cfg = {}) {
+    const index = state.history.length;
+
+    if (!state.fixed) {
+      if (index !== 0 || state.lots.length) {
+        throw new Error("初期状態が不正です");
+      }
+    } else {
+      fixed = state.fixed;
+    }
+
+    if (
+      !Number.isSafeInteger(inbound) ||
+      inbound < 0 ||
+      !Number.isSafeInteger(demand) ||
+      demand < 0
+    ) {
+      throw new Error("入出庫量は0以上の整数にしてください");
+    }
+
+    const lots = clone(state.lots);
+
+    if (!state.fixed && fixed.initial > 0) {
+      lots.push({ t: 0, qty: fixed.initial });
+    }
+
+    let lot = lots.find(l => l.t === index);
+
+    if (inbound > 0) {
+      if (!lot) {
+        lot = { t: index, qty: 0 };
+        lots.push(lot);
+      }
+      lot.qty += inbound;
+    }
+
+    const starting = lots.reduce((s, l) => s + l.qty, 0);
+
+    if (!Number.isSafeInteger(starting)) {
+      throw new Error("在庫量が処理可能な範囲を超えています");
+    }
+
+    const elig = lots
+      .map((_, i) => i)
+      .filter(i =>
+        lots[i].qty > 0 &&
+        index - lots[i].t <= fixed.limit
+      )
+      .sort((a, b) => lots[a].t - lots[b].t);
+
+    const eligibleBefore = elig.reduce((s, i) => s + lots[i].qty, 0);
+    const need = Math.min(demand, eligibleBefore);
+    const shipped = new Array(lots.length).fill(0);
+    let rest = need;
+
+    if (fixed.mode === "FIFO" || fixed.mode === "LIFO") {
+      const seq = fixed.mode === "FIFO"
+        ? elig
+        : elig.slice().reverse();
+
+      for (const i of seq) {
+        const q = Math.min(rest, lots[i].qty);
+        lots[i].qty -= q;
+        shipped[i] += q;
+        rest -= q;
+        if (!rest) break;
+      }
+    } else if (fixed.mode === "均等") {
+      let active = elig.slice();
+
+      while (rest > 0 && active.length) {
+        const q = Math.floor(rest / active.length);
+
+        if (q === 0) {
+          for (const i of active) {
+            if (!rest) break;
+            lots[i].qty--;
+            shipped[i]++;
+            rest--;
+          }
+          break;
+        }
+
+        for (const i of active) {
+          const n = Math.min(q, lots[i].qty);
+          lots[i].qty -= n;
+          shipped[i] += n;
+          rest -= n;
+        }
+
+        active = active.filter(i => lots[i].qty > 0);
+      }
+    } else {
+      throw new Error("引当方式が不正です");
+    }
+
+    if (rest !== 0) {
+      throw new Error("引当できませんでした");
+    }
+
+    const N = lots.reduce((s, l) => s + l.qty, 0);
+    const actual = need;
+
+    const avg = N
+      ? lots.reduce((s, l) => s + (index - l.t) * l.qty, 0) / N
+      : null;
+
+    const outAvg = actual
+      ? lots.reduce(
+          (s, l, i) => s + (index - l.t) * shipped[i],
+          0
+        ) / actual
+      : null;
+
+    const p = {};
+    let entropy = 0;
+    let overQty = 0;
+    let overLots = 0;
+    const newAlerts = [];
+
+    for (const l of lots) {
+      if (l.qty <= 0) continue;
+
+      if (N > 0) {
+        const v = l.qty / N;
+        p[l.t] = v;
+        entropy -= v * Math.log(v);
+      }
+
+      if (index - l.t > fixed.limit) {
+        overQty += l.qty;
+        overLots++;
+
+        if (index - l.t === fixed.limit + 1) {
+          newAlerts.push({ t: l.t, qty: l.qty });
+        }
+      }
+    }
+
+    if (starting - actual !== N) {
+      throw new Error("在庫の整合性エラー");
+    }
+
+    const rec = {
+      i: index,
+      inbound,
+      demand,
+      actual,
+      unmet: demand - actual,
+      eligibleBefore,
+      total: N,
+      avg,
+      outAvg,
+      entropy: N ? entropy : null,
+      p,
+      overQty,
+      overLots,
+      newAlerts,
+      cfg: clone(cfg)
+    };
+
+    return {
+      fixed: clone(fixed),
+      lots,
+      history: state.history.concat([rec]),
+      replay: state.replay
+    };
+  }
+
+  return { fresh, advance };
+}
+
+(function TADApp() {
+  "use strict";
+
+  const core = TADCore();
+
+  const names = [
+    "start", "initial", "mode", "limit",
+    "amount", "prob", "min", "max",
+    "step", "reset", "backup", "restore", "csv",
+    "reuse", "release", "spin", "tilt",
+    "status", "message", "saveStatus", "alert",
+    "lots", "log", "surface", "inChart", "outChart",
+    "entropyChart", "plotNote", "replayNote",
+    "today", "stock", "eligible", "average", "entropy"
+  ];
+
+  const e = {};
+
+  for (const name of names) {
+    e[name] = document.getElementById(name);
+    if (!e[name]) {
+      throw new Error("画面部品がありません: " + name);
+    }
+  }
+
+  const week = Array.from(
+    document.querySelectorAll('input[name="wd"]')
+  );
+
+  const fixedEls = [e.start, e.initial, e.mode, e.limit];
+  const dailyEls = [...week, e.amount, e.prob, e.min, e.max];
+
+  const key = "TAD_inventory_simulator_v1";
+  let state = core.fresh();
+
+  const fmt = x =>
+    x === null || x === undefined
+      ? "—"
+      : Number.isFinite(Number(x))
+        ? Number(x).toLocaleString(
+            "ja-JP",
+            { maximumFractionDigits: 2 }
+          )
+        : "—";
+
+  const clone = x => JSON.parse(JSON.stringify(x));
+
+  function show(msg, error = false) {
+    e.message.textContent = msg;
+    e.message.className = error ? "message error" : "message";
+  }
+
+  function parseIntField(el, label, cap = 1000000000) {
+    const raw = String(el.value).trim();
+    const x = Number(raw);
+
+    if (
+      raw === "" ||
+      !Number.isSafeInteger(x) ||
+      x < 0 ||
+      x > cap
+    ) {
+      throw Error(
+        label + "は0以上" + cap + "以下の整数にしてください。"
+      );
+    }
+
+    return x;
+  }
+
+  function readForm() {
+    const start = String(e.start.value);
+    const d = new Date(start + "T00:00:00Z");
+
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(start) ||
+      !Number.isFinite(d.getTime()) ||
+      d.toISOString().slice(0, 10) !== start
+    ) {
+      throw Error("開始日を正しく入力してください。");
+    }
+
+    const raw = String(e.prob.value).trim();
+    const prob = Number(raw);
+
+    if (
+      raw === "" ||
+      !Number.isFinite(prob) ||
+      prob < 0 ||
+      prob > 100
+    ) {
+      throw Error("出庫発生確率は0〜100％で入力してください。");
+    }
+
+    const initial = parseIntField(e.initial, "初期在庫");
+    const limit = parseIntField(e.limit, "鮮度制限", 365000);
+    const amount = parseIntField(e.amount, "入庫量");
+    const min = parseIntField(e.min, "出庫最小");
+    const max = parseIntField(e.max, "出庫最大");
+
+    if (min > max) {
+      throw Error("出庫最小は出庫最大以下にしてください。");
+    }
+
+    const mode = String(e.mode.value);
+
+    if (!["FIFO", "LIFO", "均等"].includes(mode)) {
+      throw Error("引当方式を選んでください。");
+    }
+
+    return {
+      fixed: { start, initial, mode, limit },
+      daily: {
+        days: week
+          .filter(x => x.checked)
+          .map(x => Number(x.value)),
+        amount,
+        prob,
+        min,
+        max
+      }
+    };
+  }
+
+  function rawForm() {
+    return {
+      start: e.start.value,
+      initial: e.initial.value,
+      mode: e.mode.value,
+      limit: e.limit.value,
+      amount: e.amount.value,
+      prob: e.prob.value,
+      min: e.min.value,
+      max: e.max.value,
+      days: week
+        .filter(x => x.checked)
+        .map(x => Number(x.value))
+    };
+  }
+
+  function fillForm(f) {
+    if (!f || typeof f !== "object") return;
+
+    for (const n of [
+      "start", "initial", "mode", "limit",
+      "amount", "prob", "min", "max"
+    ]) {
+      if (f[n] !== undefined) {
+        e[n].value = String(f[n]);
+      }
+    }
+
+    if (Array.isArray(f.days)) {
+      week.forEach(
+        x => x.checked = f.days.map(Number).includes(Number(x.value))
+      );
+    }
+  }
+
+  function dayAt(start, i) {
+    const d = new Date(start + "T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() + i);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function wday(date) {
+    return new Date(date + "T00:00:00Z").getUTCDay();
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          kind: "TAD-inventory-1",
+          state,
+          form: rawForm()
+        })
+      );
+
+      e.saveStatus.textContent = "ブラウザー内に保存済み";
+      return true;
+    } catch (_) {
+      e.saveStatus.textContent =
+        "自動保存できません。JSON保存をご利用ください。";
+      return false;
+    }
+  }
+
+  function checkPack(o) {
+    if (!o || o.kind !== "TAD-inventory-1" || !o.state || !o.form) {
+      return false;
+    }
+
+    const s = o.state;
+
+    if (!Array.isArray(s.history) || !Array.isArray(s.lots)) {
+      return false;
+    }
+
+    if (s.history.length > 30000 || s.lots.length > 30000) {
+      return false;
+    }
+
+    if (!s.history.length) {
+      if (s.fixed !== null || s.lots.length) return false;
+    } else {
+      const f = s.fixed;
+
+      if (
+        !f ||
+        !/^\d{4}-\d\d-\d\d$/.test(f.start) ||
+        !Number.isSafeInteger(f.initial) ||
+        f.initial < 0 ||
+        !Number.isSafeInteger(f.limit) ||
+        f.limit < 0 ||
+        !["FIFO", "LIFO", "均等"].includes(f.mode)
+      ) {
+        return false;
+      }
+
+      const dd = new Date(f.start + "T00:00:00Z");
+
+      if (
+        !Number.isFinite(dd.getTime()) ||
+        dd.toISOString().slice(0, 10) !== f.start
+      ) {
+        return false;
+      }
+
+      let previous = f.initial;
+
+      for (let i = 0; i < s.history.length; i++) {
+        const r = s.history[i];
+
+        if (
+          !r ||
+          r.i !== i ||
+          !r.p ||
+          typeof r.p !== "object" ||
+          !Array.isArray(r.newAlerts) ||
+          !r.cfg
+        ) {
+          return false;
+        }
+
+        for (const k of [
+          "inbound", "demand", "actual", "unmet",
+          "eligibleBefore", "total", "overQty", "overLots"
+        ]) {
+          if (!Number.isSafeInteger(r[k]) || r[k] < 0) {
+            return false;
+          }
+        }
+
+        if (
+          previous + r.inbound - r.actual !== r.total ||
+          r.actual + r.unmet !== r.demand ||
+          r.actual > r.eligibleBefore ||
+          r.overQty > r.total
+        ) {
+          return false;
+        }
+
+        for (const k of ["avg", "outAvg", "entropy"]) {
+          if (
+            r[k] !== null &&
+            (!Number.isFinite(r[k]) || r[k] < -1e-10)
+          ) {
+            return false;
+          }
+        }
+
+        let sum = 0;
+
+        for (const [t, p] of Object.entries(r.p)) {
+          if (
+            !/^\d+$/.test(t) ||
+            Number(t) > i ||
+            !Number.isFinite(p) ||
+            p < 0 ||
+            p > 1
+          ) {
+            return false;
+          }
+          sum += p;
+        }
+
+        if (
+          (r.total === 0 && sum !== 0) ||
+          (r.total > 0 && Math.abs(sum - 1) > 1e-7)
+        ) {
+          return false;
+        }
+
+        previous = r.total;
+      }
+
+      let sum = 0;
+      const seen = new Set();
+
+      for (const l of s.lots) {
+        if (
+          !Number.isSafeInteger(l.t) ||
+          l.t < 0 ||
+          l.t >= s.history.length ||
+          seen.has(l.t) ||
+          !Number.isSafeInteger(l.qty) ||
+          l.qty < 0
+        ) {
+          return false;
+        }
+
+        seen.add(l.t);
+        sum += l.qty;
+      }
+
+      if (sum !== previous) return false;
+    }
+
+    if (s.replay !== null) {
+      const r = s.replay;
+
+      if (
+        !r ||
+        !Array.isArray(r.events) ||
+        !Array.isArray(r.baseline) ||
+        r.events.length !== r.baseline.length ||
+        !r.fixed ||
+        typeof r.fixed.start !== "string" ||
+        !Number.isSafeInteger(r.fixed.initial) ||
+        r.fixed.initial < 0
+      ) {
+        return false;
+      }
+
+      if (s.history.length > r.events.length) return false;
+
+      for (const x of r.events) {
+        if (
+          !x ||
+          !Number.isSafeInteger(x.inbound) ||
+          x.inbound < 0 ||
+          !Number.isSafeInteger(x.demand) ||
+          x.demand < 0 ||
+          !x.cfg
+        ) {
+          return false;
+        }
+      }
+
+      for (const x of r.baseline) {
+        if (
+          !x ||
+          typeof x !== "object" ||
+          !["avg", "outAvg", "entropy"].every(
+            k => x[k] === null || Number.isFinite(x[k])
+          )
+        ) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  function download(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function backup() {
+    const blob = new Blob(
+      [JSON.stringify({
+        kind: "TAD-inventory-1",
+        state,
+        form: rawForm()
+      })],
+      { type: "application/json" }
+    );
+
+    download(blob, "tad_inventory_backup.json");
+  }
+
+  function exportCsv() {
+    if (!state.fixed || !state.history.length) {
+      show("記録がありません。", true);
+      return;
+    }
+
+    const head = [
+      "日付", "入庫量", "出庫需要", "実出庫", "未出庫",
+      "出庫可能在庫(出庫前)", "在庫量",
+      "入庫平均年齢(日)", "出庫平均年齢(日)",
+      "履歴エントロピー", "鮮度超過量", "超過ロット数",
+      "新規アラート数", "引当方式", "鮮度制限(日)",
+      "入庫曜日(0=日)", "設定入庫量", "出庫確率(%)",
+      "出庫最小", "出庫最大"
+    ];
+
+    const rows = state.history.map(r => [
+      dayAt(state.fixed.start, r.i),
+      r.inbound,
+      r.demand,
+      r.actual,
+      r.unmet,
+      r.eligibleBefore,
+      r.total,
+      r.avg,
+      r.outAvg,
+      r.entropy,
+      r.overQty,
+      r.overLots,
+      r.newAlerts.length,
+      state.fixed.mode,
+      state.fixed.limit,
+      (r.cfg.days || []).join("/"),
+      r.cfg.amount,
+      r.cfg.prob,
+      r.cfg.min,
+      r.cfg.max
+    ]);
+
+    const q = x =>
+      '"' +
+      String(x === null || x === undefined ? "" : x)
+        .replace(/"/g, '""') +
+      '"';
+
+    const csv =
+      "\uFEFF" +
+      [head, ...rows]
+        .map(row => row.map(q).join(","))
+        .join("\r\n");
+
+    download(
+      new Blob([csv], { type: "text/csv;charset=utf-8" }),
+      "tad_inventory_daily.csv"
+    );
+
+    show("日別データをCSVとして保存しました。");
+  }
+
+  function prepareReplay() {
+    if (!state.fixed || !state.history.length) {
+      show("比較するため、まず１日以上実行してください。", true);
+      return;
+    }
+
+    if (!confirm(
+      "現在の入出庫需要を比較用に保持して、新しい方式の実行を始めます。" +
+      "現在の結果は比較元としてグラフに残ります。よろしいですか？"
+    )) {
+      return;
+    }
+
+    const prior = state.fixed;
+    const baseline = clone(state.history);
+
+    state = {
+      fixed: null,
+      lots: [],
+      history: [],
+      replay: {
+        fixed: clone(prior),
+        baseline,
+        events: baseline.map(r => ({
+          inbound: r.inbound,
+          demand: r.demand,
+          cfg: clone(r.cfg)
+        }))
+      }
+    };
+
+    e.start.value = prior.start;
+    e.initial.value = String(prior.initial);
+    e.limit.value = String(prior.limit);
+    e.mode.value = prior.mode;
+
+    render();
+    save();
+    show(
+      "比較用データを準備しました。" +
+      "引当方式を選び、「１日進める」を押してください。"
+    );
+  }
+
+  function releaseReplay() {
+    if (!state.replay) return;
+
+    if (!confirm(
+      "比較元の表示を終了し、以降は現在の設定で入出庫を生成します。" +
+      "よろしいですか？"
+    )) {
+      return;
+    }
+
+    state.replay = null;
+    render();
+    save();
+    show("比較用データの再利用を終了しました。");
+  }
+
+  function reset() {
+    if (
+      (state.history.length || state.replay) &&
+      !confirm(
+        "現在の結果と比較元を消去して最初から始めます。" +
+        "よろしいですか？"
+      )
+    ) {
+      return;
+    }
+
+    state = core.fresh();
+    render();
+    save();
+    show("結果を初期化しました。入力値は保持しています。");
+  }
+
+  function step() {
+    try {
+      const form = readForm();
+      const fixed = state.fixed || form.fixed;
+      const index = state.history.length;
+
+      let inbound;
+      let demand;
+      let cfg = form.daily;
+
+      if (state.replay) {
+        if (
+          !state.fixed &&
+          (
+            fixed.start !== state.replay.fixed.start ||
+            fixed.initial !== state.replay.fixed.initial
+          )
+        ) {
+          throw Error("比較元の開始日・初期在庫と一致しません。");
+        }
+
+        const event = state.replay.events[index];
+
+        if (!event) {
+          show(
+            "比較用データを最後まで再生しました。" +
+            "「比較を終了」を押すと通常の生成を続けられます。"
+          );
+          return;
+        }
+
+        inbound = event.inbound;
+        demand = event.demand;
+        cfg = event.cfg;
+      } else {
+        const date = dayAt(fixed.start, index);
+
+        inbound = form.daily.days.includes(wday(date))
+          ? form.daily.amount
+          : 0;
+
+        demand = Math.random() * 100 < form.daily.prob
+          ? form.daily.min +
+            Math.floor(
+              Math.random() *
+              (form.daily.max - form.daily.min + 1)
+            )
+          : 0;
+      }
+
+      state = core.advance(state, fixed, inbound, demand, cfg);
+      render();
+      save();
+
+      const r = state.history[state.history.length - 1];
+
+      show(
+        dayAt(fixed.start, r.i) + "を処理しました。" +
+        (
+          r.newAlerts.length
+            ? " 鮮度超過の新規アラート " +
+              r.newAlerts.length + " 件。"
+            : ""
+        )
+      );
+    } catch (err) {
+      show(
+        err && err.message ? err.message : "処理できませんでした。",
+        true
+      );
+    }
+  }
+
+  function canvasSetup(node, height) {
+    const rect = node.getBoundingClientRect();
+    const w = Math.max(300, Math.floor(rect.width || 640));
+    const h = height;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+
+    node.width = Math.round(w * ratio);
+    node.height = Math.round(h * ratio);
+
+    const c = node.getContext("2d");
+
+    c.setTransform(ratio, 0, 0, ratio, 0, 0);
+    c.clearRect(0, 0, w, h);
+    c.lineJoin = "round";
+    c.lineCap = "round";
+    c.font = "12px sans-serif";
+
+    return { c, w, h };
+  }
+
+  function label(c, text, x, y, color = "#526575") {
+    c.fillStyle = color;
+    c.fillText(text, x, y);
+  }
+
+  function drawLine(node, field, unit) {
+    const { c, w, h } = canvasSetup(node, 220);
+    const series = state.history;
+    const base = state.replay ? state.replay.baseline : [];
+
+    const n = Math.max(series.length, base.length);
+    const L = 54;
+    const R = 18;
+    const T = 18;
+    const B = 32;
+    const W = w - L - R;
+    const H = h - T - B;
+
+    c.strokeStyle = "#d9e2e8";
+    c.lineWidth = 1;
+
+    let max = 0;
+
+    for (const list of [series, base]) {
+      for (const r of list) {
+        if (r[field] !== null && Number.isFinite(r[field])) {
+          max = Math.max(max, r[field]);
+        }
+      }
+    }
+
+    const ymax = max > 0 ? max * 1.15 : 1;
+
+    for (let j = 0; j <= 4; j++) {
+      const y = T + H * j / 4;
+
+      c.beginPath();
+      c.moveTo(L, y);
+      c.lineTo(w - R, y);
+      c.stroke();
+
+      label(c, fmt(ymax * (1 - j / 4)), 5, y + 4);
+    }
+
+    label(c, unit, L, T - 5);
+
+    if (!n) {
+      label(c, "データはまだありません", L + 12, T + H / 2);
+      return;
+    }
+
+    function plot(list, color, dash) {
+      c.strokeStyle = color;
+      c.lineWidth = 2;
+      c.setLineDash(dash);
+      c.beginPath();
+
+      let active = false;
+
+      for (let i = 0; i < list.length; i++) {
+        const value = list[i][field];
+
+        if (value === null || !Number.isFinite(value)) {
+          active = false;
+          continue;
+        }
+
+        const x = L + (n === 1 ? 0 : i / (n - 1) * W);
+        const y = T + H * (1 - value / ymax);
+
+        if (!active) {
+          c.moveTo(x, y);
+          active = true;
+        } else {
+          c.lineTo(x, y);
+        }
+      }
+
+      c.stroke();
+      c.setLineDash([]);
+
+      if (list.length <= 100) {
+        for (let i = 0; i < list.length; i++) {
+          const value = list[i][field];
+
+          if (value === null || !Number.isFinite(value)) {
+            continue;
+          }
+
+          const x = L + (n === 1 ? 0 : i / (n - 1) * W);
+          const y = T + H * (1 - value / ymax);
+
+          c.fillStyle = color;
+          c.beginPath();
+          c.arc(x, y, 2.6, 0, Math.PI * 2);
+          c.fill();
+        }
+      }
+    }
+
+    if (base.length) plot(base, "#91a0ad", [5, 4]);
+    plot(series, "#006cae", []);
+
+    const start = state.fixed
+      ? state.fixed.start
+      : (state.replay ? state.replay.fixed.start : "");
+
+    if (start) {
+      label(c, start, L, h - 8);
+
+      const last = dayAt(start, n - 1);
+      label(c, last, Math.max(L, w - R - 72), h - 8);
+    }
+
+    if (base.length) {
+      label(c, "青：現在　灰：比較元", L + 90, T - 5);
+    }
+  }
+
+  function draw3d() {
+    const { c, w, h } = canvasSetup(e.surface, 390);
+    const rows = state.history;
+    const n = rows.length;
+
+    if (!n) {
+      label(c, "１日進めると分布を表示します。", 20, 40);
+      e.plotNote.textContent = "";
+      return;
+    }
+
+    let zmax = 0;
+
+    for (const r of rows) {
+      for (const v of Object.values(r.p)) {
+        zmax = Math.max(zmax, v);
+      }
+    }
+
+    if (!zmax) {
+      label(c, "在庫がないため、p(t,T) は定義できません。", 20, 40);
+      e.plotNote.textContent = "";
+      return;
+    }
+
+    const stride = Math.max(1, Math.ceil(n / 180));
+    const ids = [];
+
+    for (let i = 0; i < n; i += stride) {
+      ids.push(i);
+    }
+
+    if (ids[ids.length - 1] !== n - 1) {
+      ids.push(n - 1);
+    }
+
+    const az = Number(e.spin.value) * Math.PI / 180;
+    const el = Number(e.tilt.value) * Math.PI / 180;
+    const scale = Math.min(w * 0.58, h * 0.7);
+    const cx = w * 0.5;
+    const cy = h * 0.68;
+
+    const proj = (i, j, v) => {
+      const denom = Math.max(1, n - 1);
+      const x = i / denom - .5;
+      const y = j / denom - .5;
+      const z = v / zmax;
+
+      const xr = x * Math.cos(az) - y * Math.sin(az);
+      const depth = x * Math.sin(az) + y * Math.cos(az);
+
+      return {
+        x: cx + scale * xr,
+        y: cy + scale * (
+          depth * Math.sin(el) -
+          z * Math.cos(el) * 0.78
+        ),
+        d: depth * Math.cos(el) +
+           z * Math.sin(el) * 0.78
+      };
+    };
+
+    const value = (i, j) =>
+      rows[i].total ? Number(rows[i].p[j] || 0) : null;
+
+    const faces = [];
+
+    for (let a = 0; a < ids.length - 1; a++) {
+      for (let b = 0; b <= a; b++) {
+        const i0 = ids[a];
+        const i1 = ids[a + 1];
+        const j0 = ids[b];
+        const j1 = ids[b + 1];
+
+        if (!rows[i0].total || !rows[i1].total) continue;
+
+        const points = b === a
+          ? [
+              [i0, j0, value(i0, j0)],
+              [i1, j0, value(i1, j0)],
+              [i1, j1, value(i1, j1)]
+            ]
+          : [
+              [i0, j0, value(i0, j0)],
+              [i1, j0, value(i1, j0)],
+              [i1, j1, value(i1, j1)],
+              [i0, j1, value(i0, j1)]
+            ];
+
+        if (points.some(p => p[2] === null)) continue;
+
+        const v =
+          points.reduce((s, p) => s + p[2], 0) /
+          points.length;
+
+        const poly = points.map(p => proj(...p));
+
+        faces.push({
+          poly,
+          v,
+          d: poly.reduce((s, p) => s + p.d, 0) / poly.length
+        });
+      }
+    }
+
+    faces.sort((a, b) => a.d - b.d);
+
+    for (const face of faces) {
+      const f = Math.min(1, face.v / zmax);
+      const g = Math.round(150 + 60 * f);
+      const b = Math.round(185 + 45 * f);
+      const red = Math.round(25 + 45 * f);
+
+      c.fillStyle = `rgb(${red},${g},${b})`;
+      c.strokeStyle = "rgba(20,65,85,.24)";
+      c.lineWidth = .5;
+
+      c.beginPath();
+      c.moveTo(face.poly[0].x, face.poly[0].y);
+
+      for (let i = 1; i < face.poly.length; i++) {
+        c.lineTo(face.poly[i].x, face.poly[i].y);
+      }
+
+      c.closePath();
+      c.fill();
+      c.stroke();
+    }
+
+    if (n === 1) {
+      const p = proj(0, 0, value(0, 0) || 0);
+      c.fillStyle = "#0c7dad";
+      c.beginPath();
+      c.arc(p.x, p.y, 5, 0, Math.PI * 2);
+      c.fill();
+    }
+
+    const edge = (a, b) => {
+      c.strokeStyle = "#445b69";
+      c.lineWidth = 1.2;
+      c.beginPath();
+      c.moveTo(a.x, a.y);
+      c.lineTo(b.x, b.y);
+      c.stroke();
+    };
+
+    const origin = proj(0, 0, 0);
+    const xEnd = proj(n - 1, 0, 0);
+    const yEnd = proj(0, n - 1, 0);
+    const zEnd = proj(0, 0, zmax);
+
+    edge(origin, xEnd);
+    edge(origin, yEnd);
+    edge(origin, zEnd);
+
+    label(c, "観測日 t", xEnd.x + 4, xEnd.y + 15);
+    label(c, "入庫日 T", yEnd.x + 4, yEnd.y + 15);
+    label(c, "p", zEnd.x + 4, zEnd.y - 5);
+    label(c, "上限 " + fmt(zmax), 10, 20);
+    label(c, "開始 " + state.fixed.start, 10, h - 12);
+    label(
+      c,
+      "終了 " + dayAt(state.fixed.start, n - 1),
+      w - 115,
+      h - 12
+    );
+
+    e.plotNote.textContent = stride === 1
+      ? "全日表示。未来の入庫日 T > t は描画しません。"
+      : "表示速度のため " + stride +
+        " 日おきに描画しています。数値データは全日保持しています。";
+  }
+
+  function render() {
+    const started = !!state.fixed;
+    const rep = !!state.replay;
+
+    fixedEls.forEach(x => x.disabled = started);
+
+    if (rep && !started) {
+      e.start.disabled = true;
+      e.initial.disabled = true;
+    }
+
+    dailyEls.forEach(x => x.disabled = rep);
+
+    e.release.disabled = !rep;
+    e.reuse.disabled = !state.history.length;
+    e.csv.disabled = !state.history.length;
+
+    const start = started
+      ? state.fixed.start
+      : (rep ? state.replay.fixed.start : e.start.value);
+
+    let next = "—";
+
+    try {
+      if (start) next = dayAt(start, state.history.length);
+    } catch (_) {}
+
+    e.status.textContent = started
+      ? "次に進める日： " + next +
+        " ／ 実行済み " + state.history.length + " 日"
+      : "開始前： " + next + " から処理します";
+
+    e.replayNote.textContent = rep
+      ? "比較モード：保存した " +
+        state.replay.events.length +
+        " 日分の入出庫需要を再利用します。日別入力は変更できません。"
+      : "通常モード：その日の設定に基づき出庫需要を抽選します。";
+
+    const r = state.history[state.history.length - 1];
+
+    e.today.textContent = r
+      ? dayAt(state.fixed.start, r.i)
+      : "—";
+
+    e.stock.textContent = r ? fmt(r.total) + " 個" : "—";
+    e.eligible.textContent = r
+      ? fmt(r.total - r.overQty) + " 個"
+      : "—";
+    e.average.textContent = r ? fmt(r.avg) + " 日" : "—";
+    e.entropy.textContent = r ? fmt(r.entropy) : "—";
+
+    if (!r) {
+      e.alert.textContent = "アラートはありません。";
+      e.alert.className = "alert ok";
+    } else if (r.overLots) {
+      e.alert.textContent =
+        "鮮度制限超過： " + r.overLots +
+        " ロット、" + fmt(r.overQty) + " 個。" +
+        (
+          r.newAlerts.length
+            ? " 本日の新規アラート " +
+              r.newAlerts.length + " 件。"
+            : ""
+        );
+      e.alert.className = "alert warn";
+    } else {
+      e.alert.textContent = "鮮度制限超過の在庫はありません。";
+      e.alert.className = "alert ok";
+    }
+
+    const lots = state.lots
+      .filter(l => l.qty > 0)
+      .sort((a, b) => a.t - b.t);
+
+    const i = state.history.length - 1;
+
+    e.lots.innerHTML = lots.length
+      ? lots.map(l => {
+          const age = i - l.t;
+          const expired = age > state.fixed.limit;
+
+          return (
+            "<tr><td>" +
+            dayAt(state.fixed.start, l.t) +
+            "</td><td>" + age +
+            "</td><td>" + l.qty +
+            "</td><td>" +
+            (expired ? "期限超過" : "出庫可") +
+            "</td></tr>"
+          );
+        }).join("")
+      : '<tr><td colspan="4">在庫はありません。</td></tr>';
+
+    e.log.innerHTML = state.history.length
+      ? state.history.slice().reverse().map(x =>
+          "<tr><td>" + dayAt(state.fixed.start, x.i) +
+          "</td><td>" + x.inbound +
+          "</td><td>" + x.demand +
+          "</td><td>" + x.actual +
+          "</td><td>" + x.unmet +
+          "</td><td>" + x.total +
+          "</td><td>" + fmt(x.avg) +
+          "</td><td>" + fmt(x.outAvg) +
+          "</td><td>" + fmt(x.entropy) +
+          "</td><td>" + x.newAlerts.length +
+          "</td></tr>"
+        ).join("")
+      : '<tr><td colspan="10">まだ実行していません。</td></tr>';
+
+    drawLine(e.inChart, "avg", "日");
+    drawLine(e.outChart, "outAvg", "日");
+    drawLine(e.entropyChart, "entropy", "nats");
+    draw3d();
+  }
+
+  const now = new Date();
+
+  e.start.value =
+    now.getFullYear() + "-" +
+    String(now.getMonth() + 1).padStart(2, "0") + "-" +
+    String(now.getDate()).padStart(2, "0");
+
+  try {
+    const raw = localStorage.getItem(key);
+
+    if (raw) {
+      const saved = JSON.parse(raw);
+
+      if (checkPack(saved)) {
+        state = saved.state;
+        fillForm(saved.form);
+        e.saveStatus.textContent = "前回の状態を読み込みました。";
+      } else {
+        e.saveStatus.textContent = "保存データを読み込めません。";
+      }
+    }
+  } catch (_) {
+    e.saveStatus.textContent =
+      "自動保存を利用できません。JSON保存をご利用ください。";
+  }
+
+  e.step.onclick = step;
+  e.reset.onclick = reset;
+  e.backup.onclick = backup;
+  e.csv.onclick = exportCsv;
+  e.reuse.onclick = prepareReplay;
+  e.release.onclick = releaseReplay;
+
+  e.restore.onchange = async function() {
+    const file = e.restore.files && e.restore.files[0];
+    if (!file) return;
+
+    try {
+      const o = JSON.parse(await file.text());
+
+      if (!checkPack(o)) {
+        throw Error("このアプリの正しい保存データではありません。");
+      }
+
+      if (
+        (state.history.length || state.replay) &&
+        !confirm(
+          "現在の結果を読み込んだデータに置き換えます。" +
+          "よろしいですか？"
+        )
+      ) {
+        return;
+      }
+
+      state = o.state;
+      fillForm(o.form);
+      render();
+      save();
+      show("JSONから状態を読み込みました。");
+    } catch (err) {
+      show(
+        err && err.message ? err.message : "読込に失敗しました。",
+        true
+      );
+    } finally {
+      e.restore.value = "";
+    }
+  };
+
+  for (const el of [...fixedEls, ...dailyEls]) {
+    el.onchange = () => {
+      save();
+      render();
+    };
+  }
+
+  e.spin.oninput = draw3d;
+  e.tilt.oninput = draw3d;
+
+  window.addEventListener("resize", () => render());
+
+  render();
+})();
+</script>
+</body>
+</html>
