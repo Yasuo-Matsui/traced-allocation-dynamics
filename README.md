@@ -90,6 +90,10 @@ TAD（Traced Allocation Dynamics）は、入力された履歴が時間ととも
 
 [TADに関する解説記事](https://zenn.dev/yasuo_matsui)
 
+### TADシミュレータ
+
+[在庫鮮度をモチーフにしたシミュレータ](tad_inventory.html)
+
 ## 資料について
 
 - 資料はTADの考え方と応用への入口を紹介するもので、証明や各分野の既存研究を網羅するものではありません。
