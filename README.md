@@ -91,7 +91,7 @@ TAD（Traced Allocation Dynamics）は、入力された履歴が時間ととも
 [TADに関する解説記事](https://zenn.dev/yasuo_matsui)
 
 ### TADシミュレータ
-
+↓を「tad_inventory.html」としてローカル保存し、ブラウザで開いてください。
 [在庫鮮度をモチーフにしたシミュレータ](tad_inventory.html)
 
 ## 資料について
